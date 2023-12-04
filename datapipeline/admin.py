@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(Message)
 admin.site.register(User)
 admin.site.register(CustomGPT)
+admin.site.register(FireData)

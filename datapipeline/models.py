@@ -33,3 +33,7 @@ class CustomGPT(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class FireData(models.Model):
+    data = models.JSONField()

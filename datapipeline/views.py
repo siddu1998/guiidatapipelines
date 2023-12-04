@@ -68,3 +68,17 @@ def list_custom_gpts(request):
         return JsonResponse(list(gpts), safe=False)
     else:
         return HttpResponse(status=405, content="Method not allowed")
+    
+
+
+
+
+@csrf_exempt
+def sendFireData(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            fireDataInstance = FireData.objects.create(data=data)
+            return JsonResponse(fireDataInstance.data, safe=False, status=201)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
