@@ -9,4 +9,6 @@ urlpatterns = [
     path('api/list_custom_gpts/', list_custom_gpts, name='list_custom_gpts'),
     path('api/sendFireData/', sendFireData, name='sendFireData'),
     path('api/getOAI/', getOAI, name='getOAI'),
+    path('api/list_feedback_gpts/', list_feedback_gpts, name='list_feedback_gpts'),
+    path('api/feedback_message_api/', feedback_message_api, name='feedback_message_api'),
 ]

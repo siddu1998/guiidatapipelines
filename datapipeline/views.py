@@ -47,6 +47,35 @@ def message_create(request):
     return HttpResponseBadRequest("Invalid request method")
 
 
+
+
+
+@csrf_exempt  # Bypass CSRF token for simplicity, use only for testing
+def feedback_message_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            session_id = data.get('session_id')
+            student_id = data.get('student_id')
+            sent_by = data.get('sent_by')
+            content = data.get('content')
+            gpt_used = data.get('gpt_used')
+
+            feedback_message = FeedbackMessage(
+                session_id=session_id,
+                student_id=student_id,
+                sent_by=sent_by,
+                content=content,
+                gpt_used=gpt_used,
+            )
+            feedback_message.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Feedback message saved successfully'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+
 @csrf_exempt  # For simplicity, but handle CSRF properly in production
 def create_new_gpt(request):
     if request.method == 'POST':
@@ -75,6 +104,17 @@ def list_custom_gpts(request):
     else:
         return HttpResponse(status=405, content="Method not allowed")
     
+
+@csrf_exempt
+def list_feedback_gpts(request):
+    if request.method == 'GET':
+        gpts = FeedbackGPT.objects.all().values('id', 'name', 'instructions')
+        return JsonResponse(list(gpts), safe=False)
+    else:
+        return HttpResponse(status=405, content="Method not allowed")
+    
+
+
 
 @csrf_exempt
 def sendFireData(request):
