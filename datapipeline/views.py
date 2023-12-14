@@ -7,7 +7,8 @@ import os
 
 @csrf_exempt
 def getOAI(request):
-    return os.environ.get('oaiKey')
+    return JsonResponse({'key':os.environ.get('oaiKey')}, safe=False, status=201)
+    
 
 @csrf_exempt
 def message_create(request):
