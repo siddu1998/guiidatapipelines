@@ -21,6 +21,30 @@ class Message(models.Model):
     def __str__(self):
         return f"From {self.student_id} in {self.session_id}"
 
+class FeedbackMessage(models.Model):
+    session_id = models.CharField(max_length=100)
+    student_id = models.CharField(max_length=100)
+    sent_by = models.CharField(max_length = 20)
+    created_at = models.DateTimeField(auto_now_add=True)
+    content = models.TextField()
+    gpt_used = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.student_id} + ' ' + {self.gpt_used}"
+
+
+class FeedbackGPT(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    created_by = models.CharField(max_length=100, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    instructions = models.TextField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
 class CustomGPT(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
