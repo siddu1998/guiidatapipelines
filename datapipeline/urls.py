@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/create_new_gpt/', create_new_gpt, name='create_new_gpt'),
     path('api/list_custom_gpts/', list_custom_gpts, name='list_custom_gpts'),
     path('api/sendFireData/', sendFireData, name='sendFireData'),
+    path('api/getOAI/', getOAI, name='getOAI'),
 ]
