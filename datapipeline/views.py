@@ -3,6 +3,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateparse import parse_datetime
 from .models import *  # Ensure this is your custom User model
 import json
+import os
+
+@csrf_exempt
+def getOAI(request):
+    return os.environ.get('oaiKey')
 
 @csrf_exempt
 def message_create(request):
@@ -70,9 +75,6 @@ def list_custom_gpts(request):
         return HttpResponse(status=405, content="Method not allowed")
     
 
-
-
-
 @csrf_exempt
 def sendFireData(request):
     if request.method == 'POST':
@@ -82,3 +84,4 @@ def sendFireData(request):
             return JsonResponse(fireDataInstance.data, safe=False, status=201)
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        
