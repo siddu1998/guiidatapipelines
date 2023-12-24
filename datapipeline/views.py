@@ -15,36 +15,25 @@ def message_create(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            print(data)
-            # Parsing and validating data
             session_id = data.get('session_id')
-            student_id = data.get('student_id')  # Expect assigned_id instead of user_id
+            student_id = data.get('student_id')
+            sent_by = data.get('sent_by')
             content = data.get('content')
+            gpt_used = data.get('gpt_used')
 
-            # Ensuring all necessary data is provided
-            if not all([session_id, student_id, content]):
-                return HttpResponseBadRequest("Missing required fields")
-
-            # Creating the message
             message = Message(
                 session_id=session_id,
                 student_id=student_id,
+                sent_by=sent_by,
                 content=content,
+                gpt_used=gpt_used,
             )
             message.save()
 
-            # Returning the created message data
-            return JsonResponse({
-                "id": message.id,
-                "session_id": message.session_id,
-                "student_id": message.student_id,
-                "content": message.content,
-            })
+            return JsonResponse({'status': 'success', 'message': 'Feedback message saved successfully'})
 
-        except json.JSONDecodeError:
-            return HttpResponseBadRequest("Invalid JSON")
-
-    return HttpResponseBadRequest("Invalid request method")
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
 
 
 

@@ -15,11 +15,13 @@ class User(models.Model):
 class Message(models.Model):
     session_id = models.CharField(max_length=100)
     student_id = models.CharField(max_length=100)
-    content = models.TextField()
+    sent_by = models.CharField(max_length = 20)
     created_at = models.DateTimeField(auto_now_add=True)
+    content = models.TextField()
+    gpt_used = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"From {self.student_id} in {self.session_id}"
+        return f"{self.student_id} used {self.gpt_used}"
 
 class FeedbackMessage(models.Model):
     session_id = models.CharField(max_length=100)
@@ -30,7 +32,7 @@ class FeedbackMessage(models.Model):
     gpt_used = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.student_id} + ' ' + {self.gpt_used}"
+        return f"{self.student_id} used {self.gpt_used}"
 
 
 class FeedbackGPT(models.Model):
