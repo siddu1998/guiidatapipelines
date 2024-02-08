@@ -4,6 +4,7 @@ from django.utils.dateparse import parse_datetime
 from .models import *  # Ensure this is your custom User model
 import json
 import os
+from collections import defaultdict
 
 @csrf_exempt
 def getOAI(request):
@@ -115,3 +116,24 @@ def sendFireData(request):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
         
+@csrf_exempt
+def feedbackList(request):
+    messages = Message.objects.all()
+    grouped_messages = defaultdict(list)
+
+    # Group messages by session_id
+    for message in messages:
+        grouped_messages[message.session_id].append({
+            "id": message.id,
+            "session_id": message.session_id,
+            "student_id": message.student_id,
+            "sent_by": message.sent_by,
+            "created_at": message.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "content": message.content,
+            "gpt_used": message.gpt_used,
+        })
+
+    # Convert defaultdict to dict for JSON serialization
+    grouped_messages_dict = dict(grouped_messages)
+
+    return JsonResponse(grouped_messages_dict, safe=False)  # safe=False is needed to allow non-dict objects
