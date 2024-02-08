@@ -118,7 +118,7 @@ def sendFireData(request):
         
 @csrf_exempt
 def feedbackList(request):
-    messages = Message.objects.all()
+    messages = FeedbackMessage.objects.all()
     grouped_messages = defaultdict(list)
 
     # Group messages by session_id
