@@ -137,3 +137,27 @@ def feedbackList(request):
     grouped_messages_dict = dict(grouped_messages)
 
     return JsonResponse(grouped_messages_dict, safe=False)  # safe=False is needed to allow non-dict objects
+
+
+
+@csrf_exempt
+def scList(request):
+    messages = Message.objects.all()
+    grouped_messages = defaultdict(list)
+
+    # Group messages by session_id
+    for message in messages:
+        grouped_messages[message.session_id].append({
+            "id": message.id,
+            "session_id": message.session_id,
+            "student_id": message.student_id,
+            "sent_by": message.sent_by,
+            "created_at": message.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "content": message.content,
+            "gpt_used": message.gpt_used,
+        })
+
+    # Convert defaultdict to dict for JSON serialization
+    grouped_messages_dict = dict(grouped_messages)
+
+    return JsonResponse(grouped_messages_dict, safe=False)  # safe=False is needed to allow non-dict objects
