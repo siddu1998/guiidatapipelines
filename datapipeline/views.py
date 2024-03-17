@@ -6,6 +6,8 @@ import json
 import os
 from collections import defaultdict
 
+
+
 @csrf_exempt
 def getOAI(request):
     return JsonResponse({'key':os.environ.get('oaiKey')}, safe=False, status=201)
@@ -161,3 +163,18 @@ def scList(request):
     grouped_messages_dict = dict(grouped_messages)
 
     return JsonResponse(grouped_messages_dict, safe=False)  # safe=False is needed to allow non-dict objects
+
+@csrf_exempt
+def get_messages_by_gpt(request):
+    gpt_used = request.GET.get('gpt_used')
+
+    if not gpt_used:
+        return JsonResponse({'error': 'The gpt_used parameter is required.'}, status=400)
+
+    messages = Message.objects.filter(gpt_used=gpt_used).values(
+        'session_id', 'student_id', 'sent_by', 'created_at', 'content', 'gpt_used'
+    )
+
+    messages_list = list(messages)
+
+    return JsonResponse(messages_list, safe=False)
