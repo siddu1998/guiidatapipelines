@@ -14,5 +14,5 @@ urlpatterns = [
     path('api/feedbackList/', feedbackList, name='feedbackList'),
     path('api/scList/', scList, name='scList'),
     path('api/messages/', get_messages_by_gpt, name='get_messages_by_gpt'),
-    path('api/messages/', get_lets_by_gpt, name='get_lets_by_gpt'),
+    path('api/letsmessages/', get_lets_by_gpt, name='get_lets_by_gpt'),
 ]
