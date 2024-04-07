@@ -178,3 +178,18 @@ def get_messages_by_gpt(request):
     messages_list = list(messages)
 
     return JsonResponse(messages_list, safe=False)
+
+@csrf_exempt
+def get_lets_by_gpt(request):
+    gpt_used = request.GET.get('gpt_used')
+
+    if not gpt_used:
+        return JsonResponse({'error': 'The gpt_used parameter is required.'}, status=400)
+
+    messages = FeedbackMessage.objects.filter(gpt_used=gpt_used).values(
+        'session_id', 'student_id', 'sent_by', 'created_at', 'content', 'gpt_used'
+    )
+
+    messages_list = list(messages)
+
+    return JsonResponse(messages_list, safe=False)
