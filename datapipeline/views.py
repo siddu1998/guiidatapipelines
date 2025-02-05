@@ -91,7 +91,7 @@ def create_new_gpt(request):
 @csrf_exempt
 def list_custom_gpts(request):
     if request.method == 'GET':
-        gpts = CustomGPT.objects.all().values('id', 'name', 'instructions')
+        gpts = CustomGPT.objects.all().order_by('-created_at').values('id', 'name', 'instructions')
         return JsonResponse(list(gpts), safe=False)
     else:
         return HttpResponse(status=405, content="Method not allowed")
@@ -105,8 +105,6 @@ def list_feedback_gpts(request):
     else:
         return HttpResponse(status=405, content="Method not allowed")
     
-
-
 
 @csrf_exempt
 def sendFireData(request):
@@ -139,7 +137,6 @@ def feedbackList(request):
     grouped_messages_dict = dict(grouped_messages)
 
     return JsonResponse(grouped_messages_dict, safe=False)  # safe=False is needed to allow non-dict objects
-
 
 
 @csrf_exempt
@@ -193,3 +190,5 @@ def get_lets_by_gpt(request):
     messages_list = list(messages)
 
     return JsonResponse(messages_list, safe=False)
+
+
