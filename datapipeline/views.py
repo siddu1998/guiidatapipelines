@@ -39,9 +39,6 @@ def message_create(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
 
 
-
-
-
 @csrf_exempt  # Bypass CSRF token for simplicity, use only for testing
 def feedback_message_api(request):
     if request.method == 'POST':
@@ -52,7 +49,7 @@ def feedback_message_api(request):
             sent_by = data.get('sent_by')
             content = data.get('content')
             gpt_used = data.get('gpt_used')
-
+ 
             feedback_message = FeedbackMessage(
                 session_id=session_id,
                 student_id=student_id,
@@ -115,7 +112,16 @@ def sendFireData(request):
             return JsonResponse(fireDataInstance.data, safe=False, status=201)
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
-        
+    
+    if request.method == 'GET':
+        try:
+            latest_data = FireData.objects.latest('id')  # or use 'created_at' if your model has a timestamp field
+            return JsonResponse(latest_data.data, safe=False, status=200)
+        except FireData.DoesNotExist:
+            return JsonResponse({'error': 'No data found'}, status=404)
+
+
+
 @csrf_exempt
 def feedbackList(request):
     messages = FeedbackMessage.objects.all()
