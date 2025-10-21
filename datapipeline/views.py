@@ -5,6 +5,9 @@ from .models import *  # Ensure this is your custom User model
 import json
 import os
 from collections import defaultdict
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.conf import settings
 
 
 
@@ -196,5 +199,85 @@ def get_lets_by_gpt(request):
     messages_list = list(messages)
 
     return JsonResponse(messages_list, safe=False)
+
+
+@csrf_exempt
+def upload_image(request):
+    if request.method == 'POST':
+        try:
+            # Check if image file is present in the request
+            if 'image' not in request.FILES:
+                return JsonResponse({'error': 'No image file provided'}, status=400)
+            
+            image_file = request.FILES['image']
+            
+            # Validate file type (optional - you can add more validation)
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+            if image_file.content_type not in allowed_types:
+                return JsonResponse({'error': 'Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.'}, status=400)
+            
+            # Get optional fields from form data
+            title = request.POST.get('title', '')
+            description = request.POST.get('description', '')
+            
+            # Create Image instance
+            image_instance = Image(
+                image=image_file,
+                title=title,
+                description=description
+            )
+            image_instance.save()
+            
+            # Return success response with image URL
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Image uploaded successfully',
+                'image_id': image_instance.id,
+                'image_url': image_instance.image_url,
+                'title': image_instance.title,
+                'description': image_instance.description,
+                'uploaded_at': image_instance.uploaded_at.isoformat()
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': f'Error uploading image: {str(e)}'}, status=500)
+    
+    else:
+        return JsonResponse({'error': 'Only POST method allowed'}, status=405)
+
+
+@csrf_exempt
+def get_image(request, image_id):
+    """Get image details by ID"""
+    try:
+        image_instance = Image.objects.get(id=image_id)
+        return JsonResponse({
+            'id': image_instance.id,
+            'image_url': image_instance.image_url,
+            'title': image_instance.title,
+            'description': image_instance.description,
+            'uploaded_at': image_instance.uploaded_at.isoformat()
+        })
+    except Image.DoesNotExist:
+        return JsonResponse({'error': 'Image not found'}, status=404)
+
+
+@csrf_exempt
+def list_images(request):
+    """List all uploaded images"""
+    if request.method == 'GET':
+        images = Image.objects.all().order_by('-uploaded_at')
+        images_data = []
+        for img in images:
+            images_data.append({
+                'id': img.id,
+                'image_url': img.image_url,
+                'title': img.title,
+                'description': img.description,
+                'uploaded_at': img.uploaded_at.isoformat()
+            })
+        return JsonResponse(images_data, safe=False)
+    else:
+        return JsonResponse({'error': 'Only GET method allowed'}, status=405)
 
 

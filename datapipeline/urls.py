@@ -15,4 +15,7 @@ urlpatterns = [
     path('api/scList/', scList, name='scList'),
     path('api/messages/', get_messages_by_gpt, name='get_messages_by_gpt'),
     path('api/letsmessages/', get_lets_by_gpt, name='get_lets_by_gpt'),
+    path('api/upload-image/', upload_image, name='upload_image'),
+    path('api/image/<int:image_id>/', get_image, name='get_image'),
+    path('api/images/', list_images, name='list_images'),
 ]

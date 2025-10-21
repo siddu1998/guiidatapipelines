@@ -63,3 +63,20 @@ class CustomGPT(models.Model):
 
 class FireData(models.Model):
     data = models.JSONField()
+
+
+class Image(models.Model):
+    image = models.ImageField(upload_to='images/')
+    title = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.title or f"Image {self.id}"
+    
+    @property
+    def image_url(self):
+        """Return the URL to access the image"""
+        if self.image:
+            return self.image.url
+        return None
