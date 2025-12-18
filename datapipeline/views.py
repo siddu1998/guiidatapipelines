@@ -8,6 +8,7 @@ from collections import defaultdict
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.conf import settings
+import requests
 
 
 
@@ -279,5 +280,80 @@ def list_images(request):
         return JsonResponse(images_data, safe=False)
     else:
         return JsonResponse({'error': 'Only GET method allowed'}, status=405)
+
+
+@csrf_exempt
+def openai_chat(request):
+    """Endpoint to get AI response from OpenAI using chat history and user text"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            chat_history = data.get('chat_history', [])
+            user_text = data.get('user_text')
+            
+            if not user_text:
+                return JsonResponse({'error': 'user_text is required'}, status=400)
+            
+            # Get OpenAI API key from environment
+            openai_key = os.environ.get('oaiKey')
+            if not openai_key:
+                return JsonResponse({'error': 'OpenAI API key not configured'}, status=500)
+            
+            # Format messages for OpenAI API
+            messages = []
+            
+            # Add chat history if provided
+            if chat_history:
+                for msg in chat_history:
+                    # Handle different formats of chat history
+                    if isinstance(msg, dict):
+                        role = msg.get('role', 'user')
+                        content = msg.get('content', msg.get('text', ''))
+                        # Map sent_by to role if present
+                        if 'sent_by' in msg:
+                            sent_by = msg['sent_by'].lower()
+                            if sent_by == 'user' or sent_by == 'student':
+                                role = 'user'
+                            elif sent_by == 'assistant' or sent_by == 'gpt' or sent_by == 'ai':
+                                role = 'assistant'
+                            content = msg.get('content', '')
+                        messages.append({'role': role, 'content': content})
+            
+            # Add the current user message
+            messages.append({'role': 'user', 'content': user_text})
+            
+            # Make request to OpenAI API
+            url = "https://api.openai.com/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {openai_key}"
+            }
+            payload = {
+                "model": "gpt-4o",
+                "messages": messages
+            }
+            
+            response = requests.post(url, headers=headers, json=payload, timeout=30)
+            
+            if response.status_code == 200:
+                response_data = response.json()
+                ai_message = response_data['choices'][0]['message']['content']
+                return JsonResponse({
+                    'status': 'success',
+                    'response': ai_message,
+                    'usage': response_data.get('usage', {})
+                })
+            else:
+                return JsonResponse({
+                    'error': f'OpenAI API error: {response.status_code}',
+                    'details': response.text
+                }, status=response.status_code)
+                
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': f'Error: {str(e)}'}, status=500)
+    else:
+        return JsonResponse({'error': 'Only POST method allowed'}, status=405)
 
 

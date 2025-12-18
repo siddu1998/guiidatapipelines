@@ -18,4 +18,5 @@ urlpatterns = [
     path('api/upload-image/', upload_image, name='upload_image'),
     path('api/image/<int:image_id>/', get_image, name='get_image'),
     path('api/images/', list_images, name='list_images'),
+    path('api/openai-chat/', openai_chat, name='openai_chat'),
 ]
